@@ -7,7 +7,7 @@ services:
             args:
                 WWWGROUP: '${WWWGROUP}'
         image: sail-8.2/app
-        container_name: laravel
+        container_name: rdv-ocr_laravel
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:
@@ -28,7 +28,7 @@ services:
             - redis
     mysql:
         image: 'mysql/mysql-server:8.0'
-        container_name: mysql
+        container_name: rdv-ocr_mysql
         ports:
             - '${FORWARD_DB_PORT:-3306}:3306'
         environment:
@@ -53,7 +53,7 @@ services:
             timeout: 5s
     redis:
         image: 'redis:alpine'
-        container_name: redis
+        container_name: rdv-ocr_redis
         ports:
             - '${FORWARD_REDIS_PORT:-6379}:6379'
         volumes:
