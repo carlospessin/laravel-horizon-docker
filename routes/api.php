@@ -25,7 +25,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware('api')->group(function () {
     Route::post('/queue/validations', function (Request $request) {
 
-        ValidationsJob::dispatch($request->all())->onQueue('validations');
+        ValidationsJob::dispatch($request->all())->onQueue('default');
 
         return response()->json(["msg" => "Job despachado com sucesso!"]);
     });

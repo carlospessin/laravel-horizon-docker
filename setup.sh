@@ -1,39 +1,33 @@
 #!/bin/bash
 
-# Atualiza os pacotes
-sudo apt update
+# Dá as permissões para a pasta storage
+echo "Dando permissões a pasta Storage"
+sudo chmod o+w ./storage/ -R
+sudo chmod -R gu+w storage
+sudo chmod -R guo+w storage
 
-# Navega para o diretório home
-cd ~
+# Executa os containers
+echo "Subindo Containers"
+docker compose up -d
 
-# Baixa o instalador do Composer
-sudo curl -sS https://getcomposer.org/installer -o composer-setup.php
+echo "Aguardando subir o container do Laravel"
+for i in {5..1}; do
+    echo -ne "Aguarde... $i segundo(s)\r"
+    sleep 1
+done
 
-# Verifica a integridade do instalador do Composer
-HASH=$(curl -sS https://composer.github.io/installer.sig)
-echo $HASH
-php -r "if (hash_file('SHA384', 'composer-setup.php') === '$HASH') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
-
-# Adiciona o repositório PPA do PHP
-sudo add-apt-repository ppa:ondrej/php
-
-# Instala o PHP 8.1
-sudo apt install php8.1
-
-# Instala as extensões do PHP necessárias
-sudo apt install php8.1-mysql
-sudo apt install php8.1-xml
-sudo apt install php8.1-curl
-
-# Executa o comando composer update
-composer update
-
-# Define as permissões corretas para o Composer
-sudo chmod 755 $HOME/.cache/composer/composer-temp.phar
-sudo mv $HOME/.cache/composer/composer-temp.phar /usr/local/bin/composer
+# Copia o env
+echo "Copiando env"
+cp .env.example .env
 
 # Executa o comando artisan para gerar a chave
-./vendor/bin/sail php artisan key:generate
+echo "Rodando Composer"
+docker exec rdv-ocr_laravel /bin/bash -c "composer install"
 
-# Inicia o ambiente de desenvolvimento com o Sail
-./vendor/bin/sail up -d
+echo "Rodando Composer"
+docker exec rdv-ocr_laravel /bin/bash -c "php artisan key:generate"
+
+echo "Rodando Migrations"
+docker exec rdv-ocr_laravel /bin/bash -c "php artisan migrate"
+
+
