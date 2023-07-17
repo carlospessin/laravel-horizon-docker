@@ -1,8 +1,8 @@
 <?php
 
-use App\Jobs\ValidationsJob;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RedisController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,16 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
-
 Route::middleware('api')->group(function () {
-    Route::post('/queue/validation', function (Request $request) {
-        ValidationsJob::dispatch($request->all())->onQueue('default'); 
-        return response()->json(["msg" => "Job despachado com sucesso!"]);
-    });
-
-    Route::get('/clear-redis', function() {
-        Redis::flushall();
-        return response()->json(['msg' => 'Dados do Redis limpos com sucesso!']);
-    });
+    Route::post('/verification', [AuthController::class, 'verification']);
+    Route::get('/clear-redis', [RedisController::class, 'clear']);
 });
